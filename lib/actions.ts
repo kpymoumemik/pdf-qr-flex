@@ -42,6 +42,11 @@ function titleFromFileName(fileName: string | null) {
   return (fileName || "").replace(/\.pdf$/i, "").trim() || "PDF QR";
 }
 
+function safeRedirectPath(value: FormDataEntryValue | null) {
+  const path = typeof value === "string" ? value.trim() : "";
+  return path.startsWith("/dashboard") ? path : "/dashboard";
+}
+
 export async function signOut() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
@@ -169,7 +174,21 @@ export async function deletePdfQrCodeById(id: string) {
     await supabase.storage.from(PDF_BUCKET).remove(filePaths);
   }
 
-  await supabase.from("pdf_qr_codes").delete().eq("id", id).eq("user_id", user.id);
+  const { error: logsDeleteError } = await supabase.from("access_logs").delete().eq("qr_code_id", id);
+  if (logsDeleteError) {
+    throw new Error(logsDeleteError.message);
+  }
+
+  const { error: documentsDeleteError } = await supabase.from("documents").delete().eq("qr_code_id", id);
+  if (documentsDeleteError) {
+    throw new Error(documentsDeleteError.message);
+  }
+
+  const { error: qrDeleteError } = await supabase.from("pdf_qr_codes").delete().eq("id", id).eq("user_id", user.id);
+  if (qrDeleteError) {
+    throw new Error(qrDeleteError.message);
+  }
+
   revalidatePath("/dashboard");
 }
 
@@ -189,18 +208,21 @@ export async function setPdfQrCodeStatus(formData: FormData) {
   }
 
   const supabase = createSupabaseAdminClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("pdf_qr_codes")
     .update({ status })
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .select("id")
+    .single();
 
-  if (error) {
-    throw new Error(error.message);
+  if (error || !data) {
+    throw new Error(error?.message || "QR-код не найден.");
   }
 
   revalidatePath("/dashboard");
   revalidatePath(`/dashboard/${id}`);
+  redirect(safeRedirectPath(formData.get("redirect_to")));
 }
 
 export async function getPdfQrCodesForCurrentUser() {
