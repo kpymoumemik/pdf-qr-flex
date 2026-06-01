@@ -27,6 +27,10 @@ export function PdfQrForm() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const file = formData.get("documents");
+    formData.set("title", String(formData.get("qr_title") || ""));
+    formData.set("password", String(formData.get("qr_access_code") || ""));
+    formData.delete("qr_title");
+    formData.delete("qr_access_code");
 
     try {
       if (!(file instanceof File) || file.size === 0) {
@@ -88,7 +92,12 @@ export function PdfQrForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-5">
+    <form onSubmit={onSubmit} autoComplete="off" className="grid gap-5">
+      <div aria-hidden="true" className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden opacity-0">
+        <input type="text" name="email" autoComplete="username" tabIndex={-1} />
+        <input type="password" name="browser_saved_password" autoComplete="current-password" tabIndex={-1} />
+      </div>
+
       <FormSection
         icon={<FileText size={24} />}
         title="PDF-файл *"
@@ -106,7 +115,12 @@ export function PdfQrForm() {
         <label className="grid gap-2 text-sm font-medium text-slate-700">
           Имя
           <input
-            name="title"
+            name="qr_title"
+            type="text"
+            autoComplete="off"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-form-type="other"
             placeholder="Например, мой QR-код"
             className="h-12 rounded-md border border-slate-300 bg-white px-4 outline-none focus:border-sky-500"
           />
@@ -127,8 +141,12 @@ export function PdfQrForm() {
         <label className="grid gap-2 text-sm font-medium text-slate-700">
           Пароль для доступа к PDF
           <input
-            name="password"
+            name="qr_access_code"
             type="password"
+            autoComplete="new-password"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-form-type="other"
             placeholder="Оставьте пустым, если пароль не нужен"
             className="h-12 rounded-md border border-slate-300 bg-white px-4 outline-none focus:border-sky-500"
           />
