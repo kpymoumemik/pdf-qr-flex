@@ -10,7 +10,7 @@ export default async function NewPdfQrPage() {
 
   return (
     <main>
-      <Header />
+      <Header authenticated />
       <section className="mx-auto max-w-4xl px-5 py-8">
         <div className="mb-6">
           <Link href="/dashboard" className="text-sm font-semibold text-sky-700">← Мои QR-коды</Link>

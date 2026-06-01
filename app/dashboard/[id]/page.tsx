@@ -16,7 +16,7 @@ export default async function PdfQrDetailPage({ params }: Props) {
 
   return (
     <main>
-      <Header />
+      <Header authenticated />
       <section className="mx-auto max-w-6xl px-5 py-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>

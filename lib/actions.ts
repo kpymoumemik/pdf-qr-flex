@@ -147,8 +147,32 @@ export async function createPdfQrCodeRecord(_state: ActionState, formData: FormD
 export async function deletePdfQrCodeById(id: string) {
   const user = await requireUser();
   const supabase = createSupabaseAdminClient();
+  const { data: qrCode, error: qrError } = await supabase
+    .from("pdf_qr_codes")
+    .select("id, documents(file_path)")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (qrError || !qrCode) {
+    throw new Error("QR-код не найден.");
+  }
+
+  const filePaths = (qrCode.documents || [])
+    .map((document: { file_path?: string | null }) => document.file_path)
+    .filter((path): path is string => Boolean(path));
+
+  if (filePaths.length) {
+    await supabase.storage.from(PDF_BUCKET).remove(filePaths);
+  }
+
   await supabase.from("pdf_qr_codes").delete().eq("id", id).eq("user_id", user.id);
   revalidatePath("/dashboard");
+}
+
+export async function deletePdfQrCode(formData: FormData) {
+  const id = String(formData.get("qr_code_id") || "");
+  await deletePdfQrCodeById(id);
 }
 
 export async function getPdfQrCodesForCurrentUser() {

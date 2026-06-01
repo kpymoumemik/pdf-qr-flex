@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { MoreHorizontal } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { DownloadQrButton } from "@/components/DownloadQrButton";
+import { QrActionsMenu } from "@/components/QrActionsMenu";
 import { StatusBadge } from "@/components/StatusBadge";
-import { disablePdfQrCode } from "@/lib/actions";
 import type { PdfQrWithDocuments } from "@/lib/types";
 import { formatDateTime, publicPdfUrl } from "@/lib/utils";
 
@@ -36,12 +35,7 @@ export function PdfQrTable({ rows }: { rows: PdfQrWithDocuments[] }) {
               <Link href={`/dashboard/${row.id}`} className="inline-flex h-10 items-center rounded-md border border-slate-300 px-3 text-sm font-semibold hover:border-slate-400">
                 Детали
               </Link>
-              <form action={disablePdfQrCode}>
-                <input type="hidden" name="qr_code_id" value={row.id} />
-                <button title="Пауза" className="inline-flex size-10 items-center justify-center rounded-md bg-sky-500 text-white hover:bg-sky-600">
-                  <MoreHorizontal size={18} />
-                </button>
-              </form>
+              <QrActionsMenu qrCodeId={row.id} />
             </div>
           </div>
         );
