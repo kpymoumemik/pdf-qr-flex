@@ -38,6 +38,10 @@ function titleFromFile(file: File) {
   return file.name.replace(/\.pdf$/i, "").trim() || "PDF QR";
 }
 
+function titleFromFileName(fileName: string | null) {
+  return (fileName || "").replace(/\.pdf$/i, "").trim() || "PDF QR";
+}
+
 export async function signOut() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
@@ -101,6 +105,50 @@ export async function createPdfQrCode(_state: ActionState, formData: FormData): 
 
   revalidatePath("/dashboard");
   redirect(`/dashboard/${qrCode.id}`);
+}
+
+export async function createPdfQrCodeRecord(_state: ActionState, formData: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  const parsed = pdfQrSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!parsed.success) {
+    return { ok: false, message: parsed.error.issues[0]?.message || "Проверьте форму." };
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const token = randomBytes(24).toString("base64url");
+  const password = parsed.data.password?.trim();
+  const passwordHash = password ? await bcrypt.hash(password, 12) : null;
+
+  const { data: qrCode, error } = await supabase
+    .from("pdf_qr_codes")
+    .insert({
+      user_id: user.id,
+      token,
+      title: parsed.data.title?.trim() || titleFromFileName(optionalText(formData.get("file_name"))),
+      description: optionalText(formData.get("description")),
+      expires_at: expirationFromDays(parsed.data.expires_in_days),
+      password_hash: passwordHash,
+      qr_color: parsed.data.qr_color,
+      qr_background: parsed.data.qr_background,
+      qr_size: parsed.data.qr_size,
+    })
+    .select("id, token, user_id")
+    .single();
+
+  if (error || !qrCode) {
+    return { ok: false, message: error?.message || "Не удалось создать QR-код." };
+  }
+
+  revalidatePath("/dashboard");
+  return { ok: true, message: "QR-код создан.", data: qrCode };
+}
+
+export async function deletePdfQrCodeById(id: string) {
+  const user = await requireUser();
+  const supabase = createSupabaseAdminClient();
+  await supabase.from("pdf_qr_codes").delete().eq("id", id).eq("user_id", user.id);
+  revalidatePath("/dashboard");
 }
 
 export async function getPdfQrCodesForCurrentUser() {

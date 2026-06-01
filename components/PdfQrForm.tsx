@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ChevronDown, FileText, KeyRound, Palette, QrCode } from "lucide-react";
-import { createPdfQrCode, type ActionState } from "@/lib/actions";
-import { EXPIRATION_OPTIONS } from "@/lib/constants";
+import { createPdfQrCodeRecord, deletePdfQrCodeById, type ActionState } from "@/lib/actions";
+import { EXPIRATION_OPTIONS, MAX_PDF_SIZE_BYTES, PDF_BUCKET } from "@/lib/constants";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { PdfUpload } from "@/components/PdfUpload";
-import { SubmitButton } from "@/components/SubmitButton";
 
 const initialState: ActionState = { ok: false, message: "" };
 
@@ -13,10 +14,81 @@ const frameStyles = ["Без рамки", "Классика", "Сканируй"
 const patternStyles = ["Квадрат", "Скругленный", "Точки", "Ромб", "Плитка"];
 
 export function PdfQrForm() {
-  const [state, action] = useActionState(createPdfQrCode, initialState);
+  const router = useRouter();
+  const supabase = createSupabaseBrowserClient();
+  const [state, setState] = useState<ActionState>(initialState);
+  const [pending, setPending] = useState(false);
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    setState(initialState);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const file = formData.get("documents");
+
+    try {
+      if (!(file instanceof File) || file.size === 0) {
+        throw new Error("Выберите PDF-файл.");
+      }
+
+      const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+      if (!isPdf) {
+        throw new Error("Можно загружать только PDF-файлы.");
+      }
+
+      if (file.size > MAX_PDF_SIZE_BYTES) {
+        throw new Error("Размер PDF-файла не должен превышать 25 MB.");
+      }
+
+      formData.delete("documents");
+      formData.set("file_name", file.name);
+
+      const result = await createPdfQrCodeRecord(initialState, formData);
+      if (!result.ok) {
+        throw new Error(result.message);
+      }
+
+      const qrCode = result.data as { id: string; user_id: string };
+      const safeName = file.name.replace(/[^\p{L}\p{N}._-]+/gu, "-").replace(/-+/g, "-") || "document.pdf";
+      const filePath = `${qrCode.user_id}/${qrCode.id}/${Date.now()}-${safeName}`;
+
+      const { error: uploadError } = await supabase.storage.from(PDF_BUCKET).upload(filePath, file, {
+        contentType: "application/pdf",
+        upsert: false,
+      });
+
+      if (uploadError) {
+        await deletePdfQrCodeById(qrCode.id);
+        throw new Error(uploadError.message);
+      }
+
+      const { error: documentError } = await supabase.from("documents").insert({
+        qr_code_id: qrCode.id,
+        file_name: safeName,
+        file_path: filePath,
+        file_type: "application/pdf",
+        file_size: file.size,
+        sort_order: 0,
+      });
+
+      if (documentError) {
+        await supabase.storage.from(PDF_BUCKET).remove([filePath]);
+        await deletePdfQrCodeById(qrCode.id);
+        throw new Error(documentError.message);
+      }
+
+      router.push(`/dashboard/${qrCode.id}`);
+      router.refresh();
+    } catch (error) {
+      setState({ ok: false, message: error instanceof Error ? error.message : "Не удалось создать QR-код." });
+      setPending(false);
+    }
+  }
 
   return (
-    <form action={action} className="grid gap-5">
+    <form onSubmit={onSubmit} className="grid gap-5">
       <FormSection
         icon={<FileText size={24} />}
         title="PDF-файл *"
@@ -96,7 +168,9 @@ export function PdfQrForm() {
 
       {state.message ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{state.message}</p> : null}
       <div className="flex justify-end">
-        <SubmitButton>Создать QR-код</SubmitButton>
+        <button disabled={pending} className="h-11 rounded-md bg-sky-500 px-5 font-semibold text-white hover:bg-sky-600 disabled:opacity-60">
+          {pending ? "Создаем QR..." : "Создать QR-код"}
+        </button>
       </div>
     </form>
   );
