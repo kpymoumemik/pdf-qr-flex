@@ -35,7 +35,7 @@ export function PdfQrTable({ rows }: { rows: PdfQrWithDocuments[] }) {
               <Link href={`/dashboard/${row.id}`} className="inline-flex h-10 items-center rounded-md border border-slate-300 px-3 text-sm font-semibold hover:border-slate-400">
                 Детали
               </Link>
-              <QrActionsMenu qrCodeId={row.id} />
+              <QrActionsMenu qrCodeId={row.id} status={row.status} />
             </div>
           </div>
         );

@@ -149,7 +149,7 @@ export async function deletePdfQrCodeById(id: string) {
   const supabase = createSupabaseAdminClient();
   const { data: qrCode, error: qrError } = await supabase
     .from("pdf_qr_codes")
-    .select("id, documents(file_path)")
+    .select("id")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -158,9 +158,12 @@ export async function deletePdfQrCodeById(id: string) {
     throw new Error("QR-код не найден.");
   }
 
-  const filePaths = (qrCode.documents || [])
-    .map((document: { file_path?: string | null }) => document.file_path)
-    .filter((path): path is string => Boolean(path));
+  const { data: documents } = await supabase
+    .from("documents")
+    .select("file_path")
+    .eq("qr_code_id", id);
+
+  const filePaths = (documents || []).map((document) => document.file_path).filter(Boolean);
 
   if (filePaths.length) {
     await supabase.storage.from(PDF_BUCKET).remove(filePaths);
@@ -173,6 +176,31 @@ export async function deletePdfQrCodeById(id: string) {
 export async function deletePdfQrCode(formData: FormData) {
   const id = String(formData.get("qr_code_id") || "");
   await deletePdfQrCodeById(id);
+  redirect("/dashboard");
+}
+
+export async function setPdfQrCodeStatus(formData: FormData) {
+  const user = await requireUser();
+  const id = String(formData.get("qr_code_id") || "");
+  const status = String(formData.get("status") || "");
+
+  if (!["active", "disabled"].includes(status)) {
+    throw new Error("Некорректный статус QR-кода.");
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase
+    .from("pdf_qr_codes")
+    .update({ status })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/dashboard/${id}`);
 }
 
 export async function getPdfQrCodesForCurrentUser() {
@@ -274,12 +302,8 @@ export async function deletePdfDocument(formData: FormData) {
 }
 
 export async function disablePdfQrCode(formData: FormData) {
-  const user = await requireUser();
-  const id = String(formData.get("qr_code_id") || "");
-  const supabase = createSupabaseAdminClient();
-  await supabase.from("pdf_qr_codes").update({ status: "disabled" }).eq("id", id).eq("user_id", user.id);
-  revalidatePath("/dashboard");
-  revalidatePath(`/dashboard/${id}`);
+  formData.set("status", "disabled");
+  await setPdfQrCodeStatus(formData);
 }
 
 export async function generateSignedPdfUrls(documents: PdfDocument[]) {

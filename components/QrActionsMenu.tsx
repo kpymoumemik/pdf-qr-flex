@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { deletePdfQrCode } from "@/lib/actions";
+import { MoreHorizontal, PauseCircle, Pencil, PlayCircle, Trash2 } from "lucide-react";
+import { deletePdfQrCode, setPdfQrCodeStatus } from "@/lib/actions";
 
-export function QrActionsMenu({ qrCodeId }: { qrCodeId: string }) {
+export function QrActionsMenu({ qrCodeId, status }: { qrCodeId: string; status: string }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const isDisabled = status === "disabled";
 
   useEffect(() => {
     function onPointerDown(event: PointerEvent) {
@@ -41,6 +42,22 @@ export function QrActionsMenu({ qrCodeId }: { qrCodeId: string }) {
             <Pencil size={16} />
             Детали QR-кода
           </Link>
+
+          <form action={setPdfQrCodeStatus}>
+            <input type="hidden" name="qr_code_id" value={qrCodeId} />
+            <input type="hidden" name="status" value={isDisabled ? "active" : "disabled"} />
+            <button
+              type="submit"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              {isDisabled ? <PlayCircle size={16} /> : <PauseCircle size={16} />}
+              {isDisabled ? "Включить QR" : "Отключить QR"}
+            </button>
+          </form>
+
+          <div className="my-2 border-t border-slate-100" />
+
           <form action={deletePdfQrCode}>
             <input type="hidden" name="qr_code_id" value={qrCodeId} />
             <button
