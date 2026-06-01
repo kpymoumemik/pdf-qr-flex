@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import QRCodeLib from "qrcode";
 import { ChevronDown, FileText, KeyRound, Palette, QrCode } from "lucide-react";
 import { createPdfQrCodeRecord, deletePdfQrCodeById, type ActionState } from "@/lib/actions";
 import { EXPIRATION_OPTIONS, MAX_PDF_SIZE_BYTES, PDF_BUCKET } from "@/lib/constants";
@@ -18,6 +19,9 @@ export function PdfQrForm() {
   const supabase = createSupabaseBrowserClient();
   const [state, setState] = useState<ActionState>(initialState);
   const [pending, setPending] = useState(false);
+  const [qrColor, setQrColor] = useState("#000000");
+  const [qrBackground, setQrBackground] = useState("#ffffff");
+  const [qrSize, setQrSize] = useState("512");
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -164,23 +168,26 @@ export function PdfQrForm() {
       </FormSection>
 
       <FormSection icon={<Palette size={24} />} title="Оформите QR-код" subtitle="Выберите простой внешний вид QR-кода.">
-        <div className="grid gap-6">
-          <OptionStrip label="Рамка" name="frame_style" options={frameStyles} />
-          <OptionStrip label="Узор QR-кода" name="pattern_style" options={patternStyles} />
-          <div className="grid gap-4 rounded-md bg-slate-50 p-4 md:grid-cols-3">
-            <label className="grid gap-2 text-sm font-medium text-slate-700">
-              Цвет узора
-              <input name="qr_color" type="color" defaultValue="#000000" className="h-12 w-full rounded-md border border-slate-300 bg-white p-1" />
-            </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-700">
-              Цвет фона
-              <input name="qr_background" type="color" defaultValue="#ffffff" className="h-12 w-full rounded-md border border-slate-300 bg-white p-1" />
-            </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-700">
-              Размер PNG
-              <input name="qr_size" type="number" min={192} max={1024} step={64} defaultValue={512} className="h-12 rounded-md border border-slate-300 bg-white px-4" />
-            </label>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start">
+          <div className="grid gap-6">
+            <OptionStrip label="Рамка" name="frame_style" options={frameStyles} />
+            <OptionStrip label="Узор QR-кода" name="pattern_style" options={patternStyles} />
+            <div className="grid gap-4 rounded-md bg-slate-50 p-4 md:grid-cols-3">
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                Цвет узора
+                <input name="qr_color" type="color" value={qrColor} onChange={(event) => setQrColor(event.target.value)} className="h-12 w-full rounded-md border border-slate-300 bg-white p-1" />
+              </label>
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                Цвет фона
+                <input name="qr_background" type="color" value={qrBackground} onChange={(event) => setQrBackground(event.target.value)} className="h-12 w-full rounded-md border border-slate-300 bg-white p-1" />
+              </label>
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                Размер PNG
+                <input name="qr_size" type="number" min={192} max={1024} step={64} value={qrSize} onChange={(event) => setQrSize(event.target.value)} className="h-12 rounded-md border border-slate-300 bg-white px-4" />
+              </label>
+            </div>
           </div>
+          <QrLivePreview color={qrColor} background={qrBackground} sizeValue={qrSize} />
         </div>
       </FormSection>
 
@@ -194,6 +201,56 @@ export function PdfQrForm() {
   );
 }
 
+function QrLivePreview({
+  color,
+  background,
+  sizeValue,
+}: {
+  color: string;
+  background: string;
+  sizeValue: string;
+}) {
+  const [dataUrl, setDataUrl] = useState("");
+  const previewSize = Math.min(1024, Math.max(192, Number(sizeValue) || 512));
+
+  useEffect(() => {
+    let cancelled = false;
+
+    QRCodeLib.toDataURL("https://pdf-qr-flex.vercel.app/pdf/preview", {
+      width: previewSize,
+      margin: 2,
+      color: { dark: color, light: background },
+    }).then((url) => {
+      if (!cancelled) setDataUrl(url);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [background, color, previewSize]);
+
+  return (
+    <aside className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-3">
+        <p className="text-sm font-semibold text-slate-950">Предпросмотр QR</p>
+        <p className="mt-1 text-xs text-slate-500">Так будет выглядеть PNG.</p>
+      </div>
+      <div className="grid aspect-square place-items-center rounded-md border border-slate-200 bg-slate-50 p-4">
+        {dataUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={dataUrl} alt="Предпросмотр QR-кода" className="h-full w-full object-contain" />
+        ) : (
+          <span className="text-sm text-slate-500">Готовим QR...</span>
+        )}
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-500">
+        <span className="rounded bg-slate-50 px-2 py-1">Узор {color}</span>
+        <span className="rounded bg-slate-50 px-2 py-1">Фон {background}</span>
+      </div>
+    </aside>
+  );
+}
+
 function FormSection({
   icon,
   title,
@@ -201,10 +258,10 @@ function FormSection({
   children,
   open = false,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   subtitle: string;
-  children: React.ReactNode;
+  children: ReactNode;
   open?: boolean;
 }) {
   return (
