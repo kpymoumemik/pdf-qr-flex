@@ -1,6 +1,6 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
@@ -287,7 +287,16 @@ export async function verifyPdfQrPassword(_state: ActionState, formData: FormDat
   const valid = await bcrypt.compare(password, qrCode.password_hash);
   if (!valid) return { ok: false, message: "Неверный пароль." };
 
-  const documents = await generateSignedPdfUrls(qrCode.documents || []);
+  const cookieStore = await cookies();
+  cookieStore.set(`pdf_access_${token}`, "1", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    maxAge: 60 * 30,
+    path: "/",
+  });
+
+  const documents = qrCode.documents || [];
   await logPdfQrAccess(qrCode.id);
   return { ok: true, message: "Доступ открыт.", data: { qrCode: { ...qrCode, password_hash: null }, documents } };
 }

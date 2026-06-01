@@ -1,7 +1,6 @@
-import { Header } from "@/components/Header";
 import { PasswordGate } from "@/components/PasswordGate";
 import { PublicPdfViewer } from "@/components/PublicPdfViewer";
-import { generateSignedPdfUrls, getPublicPdfQrByToken, logPdfQrAccess } from "@/lib/actions";
+import { getPublicPdfQrByToken, logPdfQrAccess } from "@/lib/actions";
 import { deriveStatus } from "@/lib/utils";
 
 type Props = {
@@ -19,18 +18,20 @@ export default async function PublicPdfPage({ params }: Props) {
   if (status === "expired") return <StatePage title="Срок действия ссылки истек" />;
 
   const needsPassword = Boolean(qrCode.password_hash);
-  const documents = needsPassword ? [] : await generateSignedPdfUrls(qrCode.documents || []);
   if (!needsPassword) await logPdfQrAccess(qrCode.id);
 
   return (
-    <main>
-      <Header />
+    <main className="min-h-screen bg-slate-50">
       <section className="mx-auto max-w-4xl px-5 py-8">
-        <div className="mb-6 rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="mb-5 rounded-md border border-slate-200 bg-white p-5 shadow-sm">
           <h1 className="text-3xl font-semibold text-slate-950">{qrCode.title}</h1>
-          <p className="mt-2 text-slate-600">{qrCode.description || "Откройте или скачайте PDF-файл."}</p>
+          <p className="mt-3 text-lg leading-7 text-slate-600">{qrCode.description || "Откройте или скачайте PDF-файл."}</p>
         </div>
-        {needsPassword ? <PasswordGate token={token} /> : <PublicPdfViewer documents={documents} />}
+        {needsPassword ? (
+          <PasswordGate token={token} />
+        ) : (
+          <PublicPdfViewer token={token} documents={qrCode.documents || []} />
+        )}
       </section>
     </main>
   );
@@ -38,8 +39,7 @@ export default async function PublicPdfPage({ params }: Props) {
 
 function StatePage({ title }: { title: string }) {
   return (
-    <main>
-      <Header />
+    <main className="min-h-screen bg-slate-50">
       <section className="mx-auto max-w-3xl px-5 py-16 text-center">
         <div className="rounded-md border border-slate-200 bg-white p-8 shadow-sm">
           <h1 className="text-2xl font-semibold text-slate-950">{title}</h1>

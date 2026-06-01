@@ -2,16 +2,16 @@
 
 import { useActionState } from "react";
 import { verifyPdfQrPassword, type ActionState } from "@/lib/actions";
-import { PublicPdfViewer, type SignedDocument } from "@/components/PublicPdfViewer";
+import { PublicPdfViewer, type PublicPdfDocument } from "@/components/PublicPdfViewer";
 
 const initialState: ActionState = { ok: false, message: "" };
 
 export function PasswordGate({ token }: { token: string }) {
   const [state, action] = useActionState(verifyPdfQrPassword, initialState);
-  const payload = state.data as { documents?: SignedDocument[] } | undefined;
+  const payload = state.data as { documents?: PublicPdfDocument[] } | undefined;
 
   if (state.ok && payload?.documents) {
-    return <PublicPdfViewer documents={payload.documents} />;
+    return <PublicPdfViewer token={token} documents={payload.documents} />;
   }
 
   return (
