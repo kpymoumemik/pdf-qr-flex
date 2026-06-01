@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { PDF_BUCKET } from "@/lib/constants";
 import { requireUser } from "@/lib/auth";
-import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabase/server";
 import { generateSignedPdfUrl, uploadPdfDocuments } from "@/lib/storage";
 import { ensurePdfFile, pdfQrSchema } from "@/lib/validation";
 import type { PdfDocument, PdfQrWithDocuments } from "@/lib/types";
@@ -36,6 +36,12 @@ function filesFromFormData(formData: FormData, field = "documents") {
 
 function titleFromFile(file: File) {
   return file.name.replace(/\.pdf$/i, "").trim() || "PDF QR";
+}
+
+export async function signOut() {
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
+  redirect("/login");
 }
 
 export async function createPdfQrCode(_state: ActionState, formData: FormData): Promise<ActionState> {

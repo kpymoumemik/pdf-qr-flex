@@ -7,8 +7,8 @@ export default function LoginPage() {
       <Header />
       <section className="mx-auto max-w-6xl px-5 py-12">
         <div className="mx-auto mb-8 max-w-md text-center">
-          <h1 className="text-3xl font-semibold text-slate-950">Личный кабинет</h1>
-          <p className="mt-2 text-slate-600">Войдите, чтобы создавать QR-коды и менять закрепленные PDF-файлы.</p>
+          <h1 className="text-3xl font-semibold text-slate-950">Вход в кабинет</h1>
+          <p className="mt-2 text-slate-600">Введите почту и пароль, чтобы создавать QR-коды и видеть свои PDF QR.</p>
         </div>
         <AuthForm />
       </section>
