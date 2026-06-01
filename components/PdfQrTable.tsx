@@ -30,7 +30,15 @@ export function PdfQrTable({ rows }: { rows: PdfQrWithDocuments[] }) {
             </div>
             <div className="flex flex-wrap items-center gap-2 lg:justify-end">
               <StatusBadge status={row.status} expiresAt={row.expires_at} />
-              <DownloadQrButton url={url} title={row.title} color={row.qr_color} background={row.qr_background} size={row.qr_size} />
+              <DownloadQrButton
+                url={url}
+                title={row.title}
+                color={row.qr_color}
+                background={row.qr_background}
+                size={row.qr_size}
+                frameStyle={row.frame_style}
+                patternStyle={row.pattern_style}
+              />
               <CopyButton value={url} label="Ссылка" />
               <Link href={`/dashboard/${row.id}`} className="inline-flex h-10 items-center rounded-md border border-slate-300 px-3 text-sm font-semibold hover:border-slate-400">
                 Детали

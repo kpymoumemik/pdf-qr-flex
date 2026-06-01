@@ -46,6 +46,8 @@ export default async function PdfQrDetailPage({ params }: Props) {
             color={qrCode.qr_color}
             background={qrCode.qr_background}
             size={qrCode.qr_size}
+            frameStyle={qrCode.frame_style}
+            patternStyle={qrCode.pattern_style}
           />
 
           <div className="grid gap-6">

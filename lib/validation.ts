@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { MAX_PDF_SIZE_BYTES } from "@/lib/constants";
+import { FRAME_STYLES, PATTERN_STYLES } from "@/lib/qr-style";
 
 export const pdfQrSchema = z.object({
   title: z.string().trim().optional(),
@@ -9,6 +10,8 @@ export const pdfQrSchema = z.object({
   qr_color: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#000000"),
   qr_background: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#ffffff"),
   qr_size: z.coerce.number().int().min(192).max(1024).default(512),
+  frame_style: z.enum(FRAME_STYLES).default("Без рамки"),
+  pattern_style: z.enum(PATTERN_STYLES).default("Квадрат"),
 });
 
 export function ensurePdfFile(file: File) {

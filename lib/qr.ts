@@ -1,17 +1,9 @@
-import QRCode from "qrcode";
+import { generateStyledQrSvgDataUrl, type StyledQrOptions } from "@/lib/qr-style";
 import { publicPdfUrl } from "@/lib/utils";
 
 export async function generateQrDataUrl(
   token: string,
-  options?: { color?: string; background?: string; size?: number },
+  options?: StyledQrOptions,
 ) {
-  return QRCode.toDataURL(publicPdfUrl(token), {
-    errorCorrectionLevel: "M",
-    margin: 2,
-    width: options?.size ?? 512,
-    color: {
-      dark: options?.color ?? "#000000",
-      light: options?.background ?? "#ffffff",
-    },
-  });
+  return generateStyledQrSvgDataUrl(publicPdfUrl(token), options);
 }

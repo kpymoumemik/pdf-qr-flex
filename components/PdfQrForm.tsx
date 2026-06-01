@@ -1,18 +1,17 @@
 "use client";
 
-import { FormEvent, useEffect, useState, type ReactNode } from "react";
+import { FormEvent, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import QRCodeLib from "qrcode";
 import { ChevronDown, FileText, KeyRound, Palette, QrCode } from "lucide-react";
 import { createPdfQrCodeRecord, deletePdfQrCodeById, type ActionState } from "@/lib/actions";
 import { EXPIRATION_OPTIONS, MAX_PDF_SIZE_BYTES, PDF_BUCKET } from "@/lib/constants";
+import { FRAME_STYLES, PATTERN_STYLES, generateStyledQrSvgDataUrl } from "@/lib/qr-style";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { PdfUpload } from "@/components/PdfUpload";
 
 const initialState: ActionState = { ok: false, message: "" };
-
-const frameStyles = ["Без рамки", "Классика", "Сканируй", "Тонкая", "Контраст"];
-const patternStyles = ["Квадрат", "Скругленный", "Точки", "Ромб", "Плитка"];
+const frameStyles = [...FRAME_STYLES];
+const patternStyles = [...PATTERN_STYLES];
 
 export function PdfQrForm() {
   const router = useRouter();
@@ -22,6 +21,8 @@ export function PdfQrForm() {
   const [qrColor, setQrColor] = useState("#000000");
   const [qrBackground, setQrBackground] = useState("#ffffff");
   const [qrSize, setQrSize] = useState("512");
+  const [frameStyle, setFrameStyle] = useState<string>(frameStyles[0]);
+  const [patternStyle, setPatternStyle] = useState<string>(patternStyles[0]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -102,20 +103,11 @@ export function PdfQrForm() {
         <input type="password" name="browser_saved_password" autoComplete="current-password" tabIndex={-1} />
       </div>
 
-      <FormSection
-        icon={<FileText size={24} />}
-        title="PDF-файл *"
-        subtitle="Загрузите PDF-файл, который будет открываться по QR-коду."
-        open
-      >
+      <FormSection icon={<FileText size={24} />} title="PDF-файл *" subtitle="Загрузите PDF-файл, который будет открываться по QR-коду." open>
         <PdfUpload />
       </FormSection>
 
-      <FormSection
-        icon={<QrCode size={24} />}
-        title="Название QR-кода"
-        subtitle="Необязательно. Если оставить пустым, используем имя PDF-файла."
-      >
+      <FormSection icon={<QrCode size={24} />} title="Название QR-кода" subtitle="Необязательно. Если оставить пустым, используем имя PDF-файла.">
         <label className="grid gap-2 text-sm font-medium text-slate-700">
           Имя
           <input
@@ -170,8 +162,8 @@ export function PdfQrForm() {
       <FormSection icon={<Palette size={24} />} title="Оформите QR-код" subtitle="Выберите простой внешний вид QR-кода.">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start">
           <div className="grid gap-6">
-            <OptionStrip label="Рамка" name="frame_style" options={frameStyles} />
-            <OptionStrip label="Узор QR-кода" name="pattern_style" options={patternStyles} />
+            <OptionStrip label="Рамка" name="frame_style" options={frameStyles} value={frameStyle} onChange={setFrameStyle} />
+            <OptionStrip label="Узор QR-кода" name="pattern_style" options={patternStyles} value={patternStyle} onChange={setPatternStyle} />
             <div className="grid gap-4 rounded-md bg-slate-50 p-4 md:grid-cols-3">
               <label className="grid gap-2 text-sm font-medium text-slate-700">
                 Цвет узора
@@ -187,7 +179,7 @@ export function PdfQrForm() {
               </label>
             </div>
           </div>
-          <QrLivePreview color={qrColor} background={qrBackground} sizeValue={qrSize} />
+          <QrLivePreview color={qrColor} background={qrBackground} sizeValue={qrSize} frameStyle={frameStyle} patternStyle={patternStyle} />
         </div>
       </FormSection>
 
@@ -201,33 +193,17 @@ export function PdfQrForm() {
   );
 }
 
-function QrLivePreview({
-  color,
-  background,
-  sizeValue,
-}: {
-  color: string;
-  background: string;
-  sizeValue: string;
-}) {
-  const [dataUrl, setDataUrl] = useState("");
+function QrLivePreview({ color, background, sizeValue, frameStyle, patternStyle }: { color: string; background: string; sizeValue: string; frameStyle: string; patternStyle: string }) {
   const previewSize = Math.min(1024, Math.max(192, Number(sizeValue) || 512));
-
-  useEffect(() => {
-    let cancelled = false;
-
-    QRCodeLib.toDataURL("https://pdf-qr-flex.vercel.app/pdf/preview", {
-      width: previewSize,
-      margin: 2,
-      color: { dark: color, light: background },
-    }).then((url) => {
-      if (!cancelled) setDataUrl(url);
+  const dataUrl = useMemo(() => {
+    return generateStyledQrSvgDataUrl("https://pdf-qr-flex.vercel.app/pdf/preview", {
+      color,
+      background,
+      size: previewSize,
+      frameStyle,
+      patternStyle,
     });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [background, color, previewSize]);
+  }, [background, color, frameStyle, patternStyle, previewSize]);
 
   return (
     <aside className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
@@ -243,27 +219,19 @@ function QrLivePreview({
           <span className="text-sm text-slate-500">Готовим QR...</span>
         )}
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-500">
-        <span className="rounded bg-slate-50 px-2 py-1">Узор {color}</span>
-        <span className="rounded bg-slate-50 px-2 py-1">Фон {background}</span>
+      <div className="mt-3 grid gap-2 text-xs text-slate-500">
+        <div className="grid grid-cols-2 gap-2">
+          <span className="rounded bg-slate-50 px-2 py-1">Узор {color}</span>
+          <span className="rounded bg-slate-50 px-2 py-1">Фон {background}</span>
+        </div>
+        <span className="rounded bg-slate-50 px-2 py-1">Рамка: {frameStyle}</span>
+        <span className="rounded bg-slate-50 px-2 py-1">Узор QR: {patternStyle}</span>
       </div>
     </aside>
   );
 }
 
-function FormSection({
-  icon,
-  title,
-  subtitle,
-  children,
-  open = false,
-}: {
-  icon: ReactNode;
-  title: string;
-  subtitle: string;
-  children: ReactNode;
-  open?: boolean;
-}) {
+function FormSection({ icon, title, subtitle, children, open = false }: { icon: ReactNode; title: string; subtitle: string; children: ReactNode; open?: boolean }) {
   return (
     <details open={open} className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
       <summary className="flex cursor-pointer list-none items-center gap-4">
@@ -279,14 +247,14 @@ function FormSection({
   );
 }
 
-function OptionStrip({ label, name, options }: { label: string; name: string; options: string[] }) {
+function OptionStrip({ label, name, options, value, onChange }: { label: string; name: string; options: string[]; value: string; onChange: (value: string) => void }) {
   return (
     <fieldset>
       <legend className="mb-3 text-sm font-medium text-slate-700">{label}</legend>
       <div className="flex gap-3 overflow-x-auto pb-2">
         {options.map((option, index) => (
           <label key={option} className="group block shrink-0">
-            <input className="peer sr-only" type="radio" name={name} value={option} defaultChecked={index === 0} />
+            <input className="peer sr-only" type="radio" name={name} value={option} checked={value === option} onChange={() => onChange(option)} />
             <span className="grid size-20 place-items-center rounded-md border border-slate-200 bg-white text-xs font-semibold text-slate-700 shadow-sm peer-checked:border-sky-500 peer-checked:ring-2 peer-checked:ring-sky-500/20">
               <span className="grid size-12 place-items-center rounded border-2 border-slate-900">
                 {index === 0 ? "-" : "QR"}

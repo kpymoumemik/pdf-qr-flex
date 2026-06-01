@@ -1,7 +1,7 @@
 "use client";
 
-import QRCode from "qrcode";
 import { Download } from "lucide-react";
+import { generateStyledQrPngDataUrl } from "@/lib/qr-style";
 
 export function DownloadQrButton({
   url,
@@ -9,19 +9,19 @@ export function DownloadQrButton({
   color,
   background,
   size,
+  frameStyle,
+  patternStyle,
 }: {
   url: string;
   title: string;
   color: string;
   background: string;
   size: number;
+  frameStyle?: string | null;
+  patternStyle?: string | null;
 }) {
   async function download() {
-    const dataUrl = await QRCode.toDataURL(url, {
-      width: size,
-      margin: 2,
-      color: { dark: color, light: background },
-    });
+    const dataUrl = await generateStyledQrPngDataUrl(url, { color, background, size, frameStyle, patternStyle });
     const link = document.createElement("a");
     link.href = dataUrl;
     link.download = `${title.replace(/\s+/g, "-").toLowerCase()}-qr.png`;

@@ -88,6 +88,8 @@ export async function createPdfQrCode(_state: ActionState, formData: FormData): 
       qr_color: parsed.data.qr_color,
       qr_background: parsed.data.qr_background,
       qr_size: parsed.data.qr_size,
+      frame_style: parsed.data.frame_style,
+      pattern_style: parsed.data.pattern_style,
     })
     .select("id")
     .single();
@@ -137,6 +139,8 @@ export async function createPdfQrCodeRecord(_state: ActionState, formData: FormD
       qr_color: parsed.data.qr_color,
       qr_background: parsed.data.qr_background,
       qr_size: parsed.data.qr_size,
+      frame_style: parsed.data.frame_style,
+      pattern_style: parsed.data.pattern_style,
     })
     .select("id, token, user_id")
     .single();

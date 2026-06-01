@@ -12,6 +12,8 @@ export type PdfQrCode = {
   qr_color: string;
   qr_background: string;
   qr_size: number;
+  frame_style: string;
+  pattern_style: string;
   created_at: string;
   updated_at: string;
 };
