@@ -140,7 +140,7 @@ function OptionStrip({ label, name, options }: { label: string; name: string; op
             <input className="peer sr-only" type="radio" name={name} value={option} defaultChecked={index === 0} />
             <span className="grid size-20 place-items-center rounded-md border border-slate-200 bg-white text-xs font-semibold text-slate-700 shadow-sm peer-checked:border-sky-500 peer-checked:ring-2 peer-checked:ring-sky-500/20">
               <span className="grid size-12 place-items-center rounded border-2 border-slate-900">
-                {index === 0 ? "—" : "QR"}
+                {index === 0 ? "-" : "QR"}
               </span>
             </span>
             <span className="mt-1 block w-20 truncate text-center text-xs text-slate-500">{option}</span>
