@@ -1,35 +1,47 @@
 import Link from "next/link";
-import { Plus, QrCode } from "lucide-react";
+import { LogOut, Plus, QrCode, Rows3 } from "lucide-react";
 import { signOut } from "@/lib/actions";
 
 export function Header({ authenticated = false }: { authenticated?: boolean }) {
   return (
-    <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex min-h-20 max-w-6xl flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <Link href="/" className="flex items-center gap-3 font-semibold text-slate-950">
-          <span className="flex size-10 items-center justify-center rounded-md bg-sky-500 text-white">
+    <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-white/88 backdrop-blur-xl">
+      <div className="mx-auto flex min-h-18 max-w-6xl flex-col gap-3 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <Link href="/" className="flex items-center gap-3 font-semibold text-zinc-950">
+          <span className="flex size-10 items-center justify-center rounded-md bg-zinc-950 text-white shadow-sm">
             <QrCode size={22} />
           </span>
-          PDF QR
+          <span className="text-base tracking-tight">PDF QR</span>
         </Link>
+
         <nav className="flex flex-wrap items-center gap-2">
           {authenticated ? (
             <>
-              <Link href="/dashboard" className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-                Мои QR-коды
-              </Link>
-              <Link href="/dashboard/new" className="inline-flex items-center gap-2 rounded-md bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600">
+              <Link
+                href="/dashboard/new"
+                className="inline-flex h-10 items-center gap-2 rounded-md bg-sky-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600"
+              >
                 <Plus size={16} />
-                Создать QR-код
+                Создать QR
+              </Link>
+              <Link
+                href="/dashboard"
+                className="inline-flex h-10 items-center gap-2 rounded-md border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50"
+              >
+                <Rows3 size={16} />
+                Мои QR
               </Link>
               <form action={signOut}>
-                <button className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400">
+                <button className="inline-flex h-10 items-center gap-2 rounded-md border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-800 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700">
+                  <LogOut size={16} />
                   Выйти
                 </button>
               </form>
             </>
           ) : (
-            <Link href="/login" className="rounded-md bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600">
+            <Link
+              href="/login"
+              className="inline-flex h-10 items-center rounded-md bg-sky-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600"
+            >
               Войти
             </Link>
           )}
