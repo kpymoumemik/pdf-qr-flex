@@ -235,18 +235,21 @@ export async function getPdfQrCodesForCurrentUser() {
 
   const { data, error } = await supabase
     .from("pdf_qr_codes")
-    .select("*, documents(id), access_logs(created_at)")
+    .select("*, documents(id), access_logs(count)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
 
-  return (data || []).map((row) => ({
-    ...row,
-    documents: row.documents || [],
-    total_scans: row.access_logs?.length || 0,
-    last_scan_at: row.access_logs?.[0]?.created_at || null,
-  })) as PdfQrWithDocuments[];
+  return (data || []).map((row) => {
+    const scanCount = Array.isArray(row.access_logs) ? Number(row.access_logs[0]?.count || 0) : 0;
+    return {
+      ...row,
+      documents: row.documents || [],
+      total_scans: scanCount,
+      last_scan_at: null,
+    };
+  }) as PdfQrWithDocuments[];
 }
 
 export async function getPdfQrCodeById(id: string) {

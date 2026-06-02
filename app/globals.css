@@ -16,6 +16,11 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+}
+
 body {
   min-height: 100vh;
   background:
@@ -26,9 +31,68 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+a,
 button,
 input,
 select,
+summary,
 textarea {
   font: inherit;
+}
+
+a,
+button,
+summary {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+button:active,
+a:active,
+summary:active {
+  transform: translateY(1px);
+}
+
+input,
+select,
+textarea {
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+main {
+  animation: page-in 180ms ease-out both;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
