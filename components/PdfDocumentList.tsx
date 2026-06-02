@@ -18,19 +18,19 @@ export function PdfDocumentList({ qrCodeId, documents }: { qrCodeId: string; doc
                 <p className="text-sm text-slate-400">{document.file_size ? `${(document.file_size / 1024 / 1024).toFixed(2)} MB` : "PDF"}</p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <form action={replacePdfDocument} className="flex items-center gap-2">
+            <div className="grid gap-2 sm:flex sm:flex-wrap">
+              <form action={replacePdfDocument} className="grid gap-2 sm:flex sm:items-center">
                 <input type="hidden" name="qr_code_id" value={qrCodeId} />
                 <input type="hidden" name="document_id" value={document.id} />
-                <input name="replacement" type="file" accept="application/pdf,.pdf" className="w-48 text-sm text-slate-300 file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-slate-100" />
-                <button title="Заменить PDF" className="inline-flex size-10 items-center justify-center rounded-md border border-white/10 text-slate-100 hover:border-sky-400 hover:text-sky-300">
+                <input name="replacement" type="file" accept="application/pdf,.pdf" className="w-full max-w-full text-sm text-slate-300 file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-slate-100 sm:w-48" />
+                <button title="Заменить PDF" className="inline-flex h-10 w-full items-center justify-center rounded-md border border-white/10 text-slate-100 hover:border-sky-400 hover:text-sky-300 sm:w-10">
                   <RefreshCw size={16} />
                 </button>
               </form>
               <form action={deletePdfDocument}>
                 <input type="hidden" name="qr_code_id" value={qrCodeId} />
                 <input type="hidden" name="document_id" value={document.id} />
-                <button title="Удалить PDF" className="inline-flex size-10 items-center justify-center rounded-md border border-white/10 text-slate-100 hover:border-red-400 hover:text-red-300">
+                <button title="Удалить PDF" className="inline-flex h-10 w-full items-center justify-center rounded-md border border-white/10 text-slate-100 hover:border-red-400 hover:text-red-300 sm:w-10">
                   <Trash2 size={16} />
                 </button>
               </form>

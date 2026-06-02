@@ -11,7 +11,7 @@ export default async function NewPdfQrPage() {
   return (
     <main>
       <Header authenticated />
-      <section className="mx-auto max-w-4xl px-5 py-8">
+      <section className="mx-auto max-w-4xl px-4 py-6 sm:px-5 sm:py-8">
         <div className="mb-6">
           <Link href="/dashboard" className="text-sm font-semibold text-sky-300 hover:text-sky-200">← Мои QR-коды</Link>
           <p className="mt-4 text-sm font-semibold text-sky-300">1. Загрузите PDF</p>

@@ -18,7 +18,7 @@ export default async function PdfQrDetailPage({ params }: Props) {
   return (
     <main>
       <Header authenticated />
-      <section className="mx-auto max-w-6xl px-5 py-8">
+      <section className="mx-auto max-w-6xl px-4 py-6 sm:px-5 sm:py-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <Link href="/dashboard" className="text-sm font-semibold text-sky-300 hover:text-sky-200">
@@ -37,7 +37,7 @@ export default async function PdfQrDetailPage({ params }: Props) {
           </form>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,380px)_1fr]">
           <QrCodeCard
             token={qrCode.token}
             title={qrCode.title}

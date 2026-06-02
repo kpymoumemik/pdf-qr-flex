@@ -12,7 +12,7 @@ export default async function DashboardPage() {
   return (
     <main>
       <Header authenticated />
-      <section className="mx-auto max-w-6xl px-5 py-8">
+      <section className="mx-auto max-w-6xl px-4 py-6 sm:px-5 sm:py-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-semibold text-white">Мои QR-коды</h1>

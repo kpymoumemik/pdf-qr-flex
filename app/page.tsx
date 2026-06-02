@@ -24,17 +24,17 @@ export default async function Home() {
   return (
     <main>
       <Header authenticated={authenticated} />
-      <section className="mx-auto grid min-h-[calc(100vh-73px)] max-w-6xl items-center gap-10 px-5 py-10 lg:grid-cols-[minmax(0,1fr)_430px]">
+      <section className="mx-auto grid min-h-[calc(100vh-73px)] max-w-6xl items-center gap-8 px-4 py-7 sm:px-5 sm:py-10 lg:grid-cols-[minmax(0,1fr)_430px]">
         <div>
           <div className="mb-5 inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/8 px-3 py-2 text-sm font-semibold text-slate-200 shadow-lg shadow-slate-950/20">
             <span className="size-2 rounded-full bg-sky-400" />
             Генератор PDF QR
           </div>
 
-          <h1 className="max-w-3xl text-5xl font-semibold leading-[1.02] tracking-tight text-white md:text-7xl">
+          <h1 className="max-w-3xl text-4xl font-semibold leading-[1.04] tracking-tight text-white sm:text-5xl md:text-7xl">
             PDF в QR-код за пару кликов
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:mt-6 sm:text-lg sm:leading-8">
             Загрузите PDF-файл, получите QR-код и делитесь им где угодно. Файл можно заменить позже, а ссылка внутри QR останется прежней.
           </p>
 
@@ -63,7 +63,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="rounded-md border border-white/10 bg-white/8 p-4 shadow-2xl shadow-slate-950/40">
+        <div className="rounded-md border border-white/10 bg-white/8 p-3 shadow-2xl shadow-slate-950/40 sm:p-4">
           <div className="rounded-md border border-white/10 bg-slate-950/45 p-4">
             <div className="mb-4 flex items-center justify-between">
               <div>
@@ -72,7 +72,7 @@ export default async function Home() {
               </div>
               <span className="rounded bg-emerald-400/10 px-2 py-1 text-xs font-semibold text-emerald-300">Активно</span>
             </div>
-            <div className="grid aspect-square place-items-center rounded-md bg-white p-8 shadow-inner shadow-slate-300/60">
+            <div className="grid aspect-square place-items-center rounded-md bg-white p-5 shadow-inner shadow-slate-300/60 sm:p-8">
               <QrMock />
             </div>
           </div>

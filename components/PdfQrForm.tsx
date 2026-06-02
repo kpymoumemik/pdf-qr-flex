@@ -152,7 +152,7 @@ export function PdfQrForm() {
 
       {state.message ? <p className="rounded-md bg-red-500/10 p-3 text-sm text-red-200 ring-1 ring-red-400/20">{state.message}</p> : null}
       <div className="flex justify-end">
-        <button disabled={pending} className="h-11 rounded-md bg-sky-500 px-5 font-semibold text-white shadow-lg shadow-sky-950/30 hover:bg-sky-400 disabled:opacity-60">
+        <button disabled={pending} className="h-11 w-full rounded-md bg-sky-500 px-5 font-semibold text-white shadow-lg shadow-sky-950/30 hover:bg-sky-400 disabled:opacity-60 sm:w-auto">
           {pending ? "Создаем QR..." : "Создать QR-код"}
         </button>
       </div>
@@ -165,12 +165,12 @@ function QrLivePreview({ color, background, sizeValue, frameStyle, patternStyle 
   const dataUrl = useMemo(() => generateStyledQrSvgDataUrl("https://pdf-qr-flex.vercel.app/pdf/preview", { color, background, size: previewSize, frameStyle, patternStyle }), [background, color, frameStyle, patternStyle, previewSize]);
 
   return (
-    <aside className="rounded-md border border-white/10 bg-slate-950/45 p-4 shadow-lg shadow-slate-950/25">
+    <aside className="rounded-md border border-white/10 bg-slate-950/45 p-3 shadow-lg shadow-slate-950/25 sm:p-4">
       <div className="mb-3">
         <p className="text-sm font-semibold text-white">Предпросмотр QR</p>
         <p className="mt-1 text-xs text-slate-400">Белая подложка сохраняет читаемость QR.</p>
       </div>
-      <div className="grid aspect-square place-items-center rounded-md border border-slate-200 bg-white p-4">
+      <div className="mx-auto grid aspect-square w-full max-w-[260px] place-items-center rounded-md border border-slate-200 bg-white p-4">
         {dataUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={dataUrl} alt="Предпросмотр QR-кода" className="h-full w-full object-contain" />
@@ -192,11 +192,11 @@ function QrLivePreview({ color, background, sizeValue, frameStyle, patternStyle 
 
 function FormSection({ icon, title, subtitle, children, open = false }: { icon: ReactNode; title: string; subtitle: string; children: ReactNode; open?: boolean }) {
   return (
-    <details open={open} className="rounded-md border border-white/10 bg-white/8 p-5 shadow-lg shadow-slate-950/20">
-      <summary className="flex cursor-pointer list-none items-center gap-4">
-        <span className="flex size-14 shrink-0 items-center justify-center rounded-md bg-sky-400/10 text-sky-300">{icon}</span>
+    <details open={open} className="rounded-md border border-white/10 bg-white/8 p-4 shadow-lg shadow-slate-950/20 sm:p-5">
+      <summary className="flex cursor-pointer list-none items-center gap-3 sm:gap-4">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-sky-400/10 text-sky-300 sm:size-14">{icon}</span>
         <span className="min-w-0 flex-1">
-          <span className="block text-xl font-semibold text-white">{title}</span>
+          <span className="block text-lg font-semibold text-white sm:text-xl">{title}</span>
           <span className="mt-1 block text-sm text-slate-400">{subtitle}</span>
         </span>
         <ChevronDown size={22} className="text-slate-200" />
@@ -210,16 +210,16 @@ function OptionStrip({ label, name, options, value, onChange }: { label: string;
   return (
     <fieldset>
       <legend className="mb-3 text-sm font-medium text-slate-300">{label}</legend>
-      <div className="flex gap-3 overflow-x-auto pb-2">
+      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
         {options.map((option, index) => (
           <label key={option} className="group block shrink-0">
             <input className="peer sr-only" type="radio" name={name} value={option} checked={value === option} onChange={() => onChange(option)} />
-            <span className="grid size-20 place-items-center rounded-md border border-white/10 bg-slate-950/45 text-xs font-semibold text-slate-200 shadow-sm peer-checked:border-sky-400 peer-checked:ring-2 peer-checked:ring-sky-400/20">
-              <span className="grid size-12 place-items-center rounded border-2 border-slate-200">
+            <span className="grid size-18 place-items-center rounded-md border border-white/10 bg-slate-950/45 text-xs font-semibold text-slate-200 shadow-sm peer-checked:border-sky-400 peer-checked:ring-2 peer-checked:ring-sky-400/20 sm:size-20">
+              <span className="grid size-11 place-items-center rounded border-2 border-slate-200 sm:size-12">
                 {index === 0 ? "-" : "QR"}
               </span>
             </span>
-            <span className="mt-1 block w-20 truncate text-center text-xs text-slate-400">{option}</span>
+            <span className="mt-1 block w-18 truncate text-center text-xs text-slate-400 sm:w-20">{option}</span>
           </label>
         ))}
       </div>

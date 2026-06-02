@@ -32,7 +32,7 @@ export function DownloadQrButton({
     <button
       type="button"
       onClick={download}
-      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-sky-500 px-3 text-sm font-semibold text-white hover:bg-sky-600"
+      className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-sky-500 px-3 text-sm font-semibold text-white hover:bg-sky-400 sm:w-auto"
     >
       <Download size={16} />
       Скачать QR

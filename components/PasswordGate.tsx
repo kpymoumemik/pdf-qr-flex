@@ -15,14 +15,14 @@ export function PasswordGate({ token }: { token: string }) {
   }
 
   return (
-    <form action={action} className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+    <form action={action} className="rounded-md border border-white/10 bg-white/8 p-5 shadow-lg shadow-slate-950/20">
       <input type="hidden" name="token" value={token} />
-      <h2 className="text-lg font-semibold text-slate-950">Введите пароль</h2>
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-        <input name="password" type="password" required className="h-11 flex-1 rounded-md border border-slate-300 px-3 outline-none focus:border-sky-500" />
-        <button className="h-11 rounded-md bg-sky-500 px-5 font-semibold text-white hover:bg-sky-600">Открыть</button>
+      <h2 className="text-lg font-semibold text-white">Введите пароль</h2>
+      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+        <input name="password" type="password" required className="h-11 rounded-md border border-white/10 bg-slate-950/55 px-3 text-slate-100 outline-none focus:border-sky-400" />
+        <button className="h-11 rounded-md bg-sky-500 px-5 font-semibold text-white hover:bg-sky-400">Открыть</button>
       </div>
-      {state.message ? <p className="mt-3 text-sm text-red-700">{state.message}</p> : null}
+      {state.message ? <p className="mt-3 text-sm text-red-300">{state.message}</p> : null}
     </form>
   );
 }
