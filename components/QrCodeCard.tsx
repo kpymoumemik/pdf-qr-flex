@@ -25,11 +25,11 @@ export async function QrCodeCard({
   const url = publicPdfUrl(token);
 
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-md border border-white/10 bg-white/8 p-5 shadow-lg shadow-slate-950/20">
       <div className="mx-auto flex max-w-[340px] justify-center rounded-md border border-slate-200 bg-white p-4">
         <Image src={dataUrl} alt={`QR ${title}`} width={size} height={size} unoptimized className="h-auto w-full" />
       </div>
-      <p className="mt-4 break-all rounded-md bg-slate-50 p-3 font-mono text-xs text-slate-600">{url}</p>
+      <p className="mt-4 break-all rounded-md border border-white/10 bg-slate-950/45 p-3 font-mono text-xs text-slate-300">{url}</p>
       <div className="mt-4 flex flex-wrap gap-2">
         <DownloadQrButton url={url} title={title} color={color} background={background} size={size} frameStyle={frameStyle} patternStyle={patternStyle} />
         <CopyButton value={url} />

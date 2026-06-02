@@ -14,7 +14,7 @@ export function CopyButton({ value, label = "Скопировать ссылку
         setCopied(true);
         setTimeout(() => setCopied(false), 1800);
       }}
-      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold hover:border-slate-400"
+      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/8 px-3 text-sm font-semibold text-slate-100 hover:bg-white/12"
     >
       <Copy size={16} />
       {copied ? "Скопировано" : label}

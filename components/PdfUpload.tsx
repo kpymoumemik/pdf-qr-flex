@@ -20,10 +20,8 @@ export function PdfUpload({ name = "documents" }: { name?: string }) {
   function onDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
     setIsDragging(false);
-
     const file = event.dataTransfer.files?.[0];
     if (!file || !inputRef.current) return;
-
     const transfer = new DataTransfer();
     transfer.items.add(file);
     inputRef.current.files = transfer.files;
@@ -31,9 +29,7 @@ export function PdfUpload({ name = "documents" }: { name?: string }) {
   }
 
   function clearFile() {
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
+    if (inputRef.current) inputRef.current.value = "";
     setFileName("");
   }
 
@@ -52,7 +48,7 @@ export function PdfUpload({ name = "documents" }: { name?: string }) {
       onDragLeave={() => setIsDragging(false)}
       onDrop={onDrop}
       className={`flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-md border px-4 py-8 text-center transition ${
-        isDragging ? "border-sky-500 bg-sky-100" : "border-sky-200 bg-sky-50 hover:border-sky-400 hover:bg-sky-100"
+        isDragging ? "border-sky-400 bg-sky-400/10" : "border-sky-400/30 bg-sky-400/5 hover:border-sky-400 hover:bg-sky-400/10"
       }`}
     >
       <input ref={inputRef} name={name} type="file" accept="application/pdf,.pdf" required onChange={onChange} className="sr-only" />
@@ -63,8 +59,8 @@ export function PdfUpload({ name = "documents" }: { name?: string }) {
             <FileText size={34} />
           </span>
           <div>
-            <p className="font-semibold text-slate-950">{fileName}</p>
-            <p className="mt-1 text-sm text-slate-500">Файл выбран. Можно создать QR-код.</p>
+            <p className="font-semibold text-white">{fileName}</p>
+            <p className="mt-1 text-sm text-slate-400">Файл выбран. Можно создать QR-код.</p>
           </div>
           <button
             type="button"
@@ -72,7 +68,7 @@ export function PdfUpload({ name = "documents" }: { name?: string }) {
               event.stopPropagation();
               clearFile();
             }}
-            className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 hover:border-red-300 hover:text-red-700"
+            className="inline-flex h-9 items-center gap-2 rounded-md border border-white/10 bg-white/8 px-3 text-sm font-semibold text-slate-100 hover:border-red-400/40 hover:text-red-200"
           >
             <X size={16} />
             Удалить
@@ -84,8 +80,8 @@ export function PdfUpload({ name = "documents" }: { name?: string }) {
             <FileUp size={34} />
           </span>
           <div>
-            <p className="font-semibold text-slate-950">Загрузите PDF-файл</p>
-            <p className="mt-1 text-sm text-slate-500">Перетащите файл сюда или нажмите кнопку ниже</p>
+            <p className="font-semibold text-white">Загрузите PDF-файл</p>
+            <p className="mt-1 text-sm text-slate-400">Перетащите файл сюда или нажмите кнопку ниже</p>
           </div>
           <span className="inline-flex h-10 items-center justify-center rounded-md bg-sky-500 px-4 text-sm font-semibold text-white">
             Выбрать PDF

@@ -4,6 +4,8 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
+const inputClass = "h-11 rounded-md border border-white/10 bg-slate-950/55 px-3 text-slate-100 outline-none placeholder:text-slate-500 focus:border-sky-400";
+
 export function AuthForm() {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -19,11 +21,7 @@ export function AuthForm() {
     const email = String(formData.get("email")).trim();
     const password = String(formData.get("password"));
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
 
     if (signInError) {
@@ -36,30 +34,18 @@ export function AuthForm() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-md border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="mx-auto w-full max-w-md rounded-md border border-white/10 bg-white/8 p-6 shadow-lg shadow-slate-950/20">
       <form onSubmit={onSubmit} className="grid gap-4">
-        <label className="grid gap-2 text-sm font-medium text-slate-700">
+        <label className="grid gap-2 text-sm font-medium text-slate-300">
           Почта
-          <input
-            required
-            name="email"
-            type="email"
-            autoComplete="email"
-            className="h-11 rounded-md border border-slate-300 px-3 outline-none focus:border-sky-500"
-          />
+          <input required name="email" type="email" autoComplete="email" className={inputClass} />
         </label>
-        <label className="grid gap-2 text-sm font-medium text-slate-700">
+        <label className="grid gap-2 text-sm font-medium text-slate-300">
           Пароль
-          <input
-            required
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            className="h-11 rounded-md border border-slate-300 px-3 outline-none focus:border-sky-500"
-          />
+          <input required name="password" type="password" autoComplete="current-password" className={inputClass} />
         </label>
-        {error ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-        <button disabled={loading} className="h-11 rounded-md bg-sky-500 font-semibold text-white hover:bg-sky-600 disabled:opacity-60">
+        {error ? <p className="rounded-md bg-red-500/10 p-3 text-sm text-red-200 ring-1 ring-red-400/20">{error}</p> : null}
+        <button disabled={loading} className="h-11 rounded-md bg-sky-500 font-semibold text-white hover:bg-sky-400 disabled:opacity-60">
           {loading ? "Входим..." : "Войти"}
         </button>
       </form>
